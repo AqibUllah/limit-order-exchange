@@ -10,6 +10,13 @@ class Asset extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'symbol',
+        'amount',
+        'locked_amount',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
