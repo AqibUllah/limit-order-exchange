@@ -14,5 +14,8 @@ export default defineConfig({
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
+        host: 'localhost', // instead of limit-order-exchange.test
+        port: 3000,        // or any free port you like
+        strictPort: true,  // optional: fail if port is taken
     },
 });
