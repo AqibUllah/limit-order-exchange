@@ -1,6 +1,7 @@
 import {ref} from "vue";
 import {defineStore} from "pinia";
 import axios from 'axios'
+import {useOrderStore} from "./order.js";
 
 export const useUserStore = defineStore('user', () => {
 
@@ -31,6 +32,21 @@ export const useUserStore = defineStore('user', () => {
         balance.value = 0
         assets.value = []
         loaded.value = false
+
+        if (window.Echo) {
+            window.Echo.disconnect()
+        }
+    }
+
+    const listenForMatches = () => {
+        if (!user.value) return
+
+        const orderStore = useOrderStore()
+        window.Echo.private(`user.${user.value.id}`)
+            .listen('.OrderMatchedEvent', async () => {
+                await fetchProfile()
+                await orderStore.fetchOrders()
+            })
     }
 
 
@@ -42,6 +58,7 @@ export const useUserStore = defineStore('user', () => {
         //methods
         fetchProfile,
         reset,
+        listenForMatches,
 
         //variables
         user,
