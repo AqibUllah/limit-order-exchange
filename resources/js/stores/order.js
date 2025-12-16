@@ -14,7 +14,7 @@ export const useOrderStore = defineStore('order', () => {
         loading.value = true
         try {
 
-        const res = await axios.post('/api/orders',payload)
+        await axios.post('/api/orders',payload)
 
         } finally {
             loading.value = false
