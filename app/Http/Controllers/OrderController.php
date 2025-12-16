@@ -12,6 +12,24 @@ use App\Services\OrderMatchingService;
 
 class OrderController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        $query = Order::where('user_id', $user->id);
+
+        if ($request->filled('symbol')) {
+            $query->where('symbol', $request->symbol);
+        }
+
+        $orders = $query
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json($orders);
+    }
+
     public function store(OrderRequest $request)
     {
 
@@ -71,37 +89,49 @@ class OrderController extends Controller
         });
     }
 
-    public function cancel(Order $order)
+    public function cancel(Request $request, Order $order)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
-        if ($order->user_id !== $user->id || $order->status !== 1) {
-            abort(403);
+        if ($order->user_id !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Only open orders can be cancelled
+        if ($order->status !== Order::STATUS_OPEN) {
+            abort(422, 'Order cannot be cancelled');
         }
 
         DB::transaction(function () use ($order, $user) {
 
-            if ($order->side === SideEnum::BUY) {
+            $order->lockForUpdate();
+
+            if ($order->side === 'buy') {
+                // Refunding USD
                 $refund = bcmul($order->price, $order->amount, 2);
 
                 $user->lockForUpdate();
                 $user->balance = bcadd($user->balance, $refund, 2);
                 $user->save();
-            }
 
-            if ($order->side === SideEnum::SELL) {
+            } else {
+                // Unlocking asset
                 $asset = Asset::where('user_id', $user->id)
                     ->where('symbol', $order->symbol)
                     ->lockForUpdate()
-                    ->first();
+                    ->firstOrFail();
 
                 $asset->locked_amount = bcsub($asset->locked_amount, $order->amount, 8);
                 $asset->amount = bcadd($asset->amount, $order->amount, 8);
                 $asset->save();
             }
 
-            $order->status = 3;
+            $order->status = Order::STATUS_CANCELLED;
             $order->save();
         });
+
+        return response()->json([
+            'message' => 'Order cancelled successfully'
+        ]);
     }
 }
