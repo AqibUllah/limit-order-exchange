@@ -11,6 +11,13 @@ Route::post('/login', [\App\Http\Controllers\AuthController::class,'login'])->na
 Route::post('/register', [\App\Http\Controllers\AuthController::class,'register'])->name('register');
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::controller(\App\Http\Controllers\OrderController::class)
+    ->group(function () {
+        Route::post('/orders', 'store');
+        Route::post('/orders/{order}/cancel', 'cancel');
+    });
+
     Route::post('/logout', [\App\Http\Controllers\AuthController::class,'logout'])->name('logout');
     Route::get('/profile', [\App\Http\Controllers\AuthController::class,'profile'])->name('profile');
 });

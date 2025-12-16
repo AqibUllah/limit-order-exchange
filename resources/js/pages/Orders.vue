@@ -1,18 +1,33 @@
 <script setup>
 
+import { useUserStore } from '../stores/user.js'
+import OrderForm from "../components/OrderForm.vue";
+
+const userStore = useUserStore()
+
 </script>
 
 <template>
+    <div class="p-6 max-w-4xl mx-auto">
+        <h1 class="text-2xl font-semibold mb-6">Orders Dashboard</h1>
 
-    <div class="p-6">
-        <h1 class="text-2xl font-semibold">Orders Dashboard</h1>
-        <p class="text-gray-600 mt-2">
-            Wallet, orders and orderbook will live here.
-        </p>
+        <div class="grid grid-cols-2 gap-6">
+            <!-- Wallet -->
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="font-semibold mb-3">Wallet</h2>
+
+                <div class="mb-2">
+                    <strong>USD:</strong> {{ userStore.balance }}
+                </div>
+
+                <div v-for="asset in userStore.assets" :key="asset.symbol">
+                    <strong>{{ asset.symbol }}:</strong>
+                    {{ asset.amount }} (locked: {{ asset.locked_amount }})
+                </div>
+            </div>
+
+            <!-- Order Form -->
+            <OrderForm />
+        </div>
     </div>
-
 </template>
-
-<style scoped>
-
-</style>
