@@ -22,6 +22,7 @@ const login = async () => {
         })
 
         await userStore.fetchProfile()
+        userStore.listenForMatches()
 
         router.push('/')
     } catch(err) {
