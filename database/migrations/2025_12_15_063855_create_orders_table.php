@@ -9,13 +9,15 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
-            $table->string('symbol');
-            $table->enum('side',['buy','sell'])->default('buy');
-            $table->string('price');
-            $table->string('amount');
-            $table->enum('status',[1,2,3]); // 1 for open , 2 for filled and 3 for cancelled
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('symbol',10);
+            $table->enum('side',['buy','sell']);
+            $table->decimal('price',16);
+            $table->decimal('amount',16,8);
+            $table->tinyInteger('status')->default(1); // 1 for open , 2 for filled and 3 for cancelled
             $table->timestamps();
+
+            $table->index(['symbol', 'side', 'status']);
         });
     }
 
