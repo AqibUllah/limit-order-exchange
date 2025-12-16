@@ -6,12 +6,15 @@ import Login from '../pages/Login.vue'
 import Orders from '../pages/Orders.vue'
 import DashboardLayout from "../layouts/DashboardLayout.vue";
 import MainLayout from "../layouts/MainLayout.vue";
+import {useAuthStore} from "../stores/auth.js";
 
 const routes = [
     {
         path: '/login',
         component: MainLayout,
-        meta: { requiresAuth: false },
+        meta: {
+            requiresAuth: false,
+        },
         children: [
             {
                 path: '',
@@ -35,7 +38,7 @@ const routes = [
 ]
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes
 })
 
@@ -45,47 +48,33 @@ if (savedToken) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
 }
 
+
 router.beforeEach(async (to, from, next) => {
     const userStore = useUserStore()
 
-    if (!to.meta.requiresAuth) {
-        if (!userStore.loaded) {
-            try {
-                await userStore.fetchProfile()
-            } catch (e) {
-                return next()
-            }
+    if (!userStore.loaded) {
+        try {
+            await userStore.fetchProfile()
+        } catch (e) {
+            userStore.reset()
         }
-
-        // if user already logged in then redirecting to home page
-        if (userStore.user) {
-            return next('/')
-        }
-
-        return next()
+        userStore.loaded = true
     }
 
-    // only for safe(protected) routes
-    if (to.meta.requiresAuth) {
-        if (!userStore.loaded) {
-            try {
-                await userStore.fetchProfile()
-            } catch (e) {
-                userStore.reset()
-                return next('/login')
-            }
-        }
 
-        // user is authenticated
-        if (userStore.user) {
+    if (to.meta.requiresAuth) {
+        if (useAuthStore().isAuthenticated()) {
+            return next()
+        } else {
+            return next('/login')
+        }
+    } else {
+        if (useAuthStore().isAuthenticated()) {
+            return next('/')
+        } else {
             return next()
         }
-
-        // unauthenticated : redirecting to login
-        return next('/login')
     }
-
-    next()
 })
 
 export default router

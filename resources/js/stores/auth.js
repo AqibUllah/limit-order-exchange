@@ -2,13 +2,16 @@ import {ref} from "vue";
 import {defineStore} from "pinia";
 import axios from 'axios'
 import {useRouter} from "vue-router";
+import router from '@/router'
+import {useUserStore} from "./user.js";
+
 export const useAuthStore = defineStore('auth', () => {
 
     // defining store variables
     const loading = ref(false)
     const error = ref(null)
     const token = ref(null)
-    const router = useRouter()
+    const isAuthenticated = () => !!localStorage.getItem('auth_token') && !!useUserStore().user
     // implementations
     const login = async (credentials) => {
             loading.value = true
@@ -38,7 +41,8 @@ export const useAuthStore = defineStore('auth', () => {
             token.value = null
             localStorage.removeItem('auth_token')
             delete axios.defaults.headers.common['Authorization']
-            router.push('/')
+            if (window.Echo) window.Echo.disconnect()
+            router.push('/login')
         }
 
 
@@ -49,11 +53,12 @@ export const useAuthStore = defineStore('auth', () => {
         //methods
         login,
         logout,
+        isAuthenticated,
 
         //variables
         loading,
         error,
-        token
+        token,
     }
 
 })

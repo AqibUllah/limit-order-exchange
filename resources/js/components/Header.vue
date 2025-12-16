@@ -53,12 +53,12 @@
 import { ref } from 'vue';
 import {useAuthStore} from "../stores/auth.js";
 import {useUserStore} from "../stores/user.js";
+import {useRouter} from "vue-router";
 
 // Replace with your actual user data (e.g., from store, props, or auth)
 
 const userName = ref(useUserStore().user.name || null);
 const isOpen = ref(false);
-
 const authStore = useAuthStore()
 const handleLogout = () => {
     authStore.logout()
