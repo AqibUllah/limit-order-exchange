@@ -13,7 +13,7 @@ const userStore = useUserStore()
 
         <div class="grid grid-cols-2 gap-6">
             <!-- Wallet -->
-            <div class="bg-white p-4 rounded shadow">
+            <div class="bg-gradient-to-r from-indigo-500 to-blue-500 text-white p-4 shadow-blue-500/50 shadow-2xl rounded shadow">
                 <h2 class="font-semibold mb-3">Wallet</h2>
 
                 <div class="mb-2">
@@ -31,3 +31,10 @@ const userStore = useUserStore()
         </div>
     </div>
 </template>
+
+<style scoped>
+.card{
+    background: #2c5ba0;
+    color: #fff;
+}
+</style>
