@@ -8,6 +8,7 @@ use App\Models\Asset;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\OrderMatchingService;
 
 class OrderController extends Controller
 {
@@ -33,10 +34,18 @@ class OrderController extends Controller
             }
 
             if (SideEnum::tryFrom($request->side) === SideEnum::SELL) {
-                $asset = Asset::where('user_id', $user->id)
-                    ->where('symbol', $request->symbol)
-                    ->lockForUpdate()
-                    ->firstOrFail();
+                $asset = Asset::firstOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'symbol' => $request->symbol,
+                    ],
+                    [
+                        'amount' => 0,
+                        'locked_amount' => 0,
+                    ]
+                );
+
+                $asset->lockForUpdate();
 
                 if ($asset->amount < $request->amount) {
                     abort(422, 'Insufficient asset balance');
@@ -47,7 +56,7 @@ class OrderController extends Controller
                 $asset->save();
             }
 
-            return Order::create([
+            $order = Order::create([
                 'user_id' => $user->id,
                 'symbol'  => $request->symbol,
                 'side'    => $request->side,
@@ -55,6 +64,10 @@ class OrderController extends Controller
                 'amount'  => $request->amount,
                 'status'  => 1,
             ]);
+
+            app(OrderMatchingService::class)->match($order);
+
+            return $order;
         });
     }
 
