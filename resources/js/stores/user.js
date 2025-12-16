@@ -1,0 +1,53 @@
+import {computed, ref} from "vue";
+import {defineStore} from "pinia";
+import axios from 'axios'
+
+export const useUserStore = defineStore('user', () => {
+
+    // defining store variables
+    const user = ref()
+    const balance =  ref(0)
+    const assets =  ref()
+    const loaded =  ref(false)
+
+
+    // implementations
+    const fetchProfile = async () => {
+        const res = await axios.get('/api/profile')
+
+        user.value = {
+            id: res.data.id,
+            email: res.data.email,
+        }
+
+        balance.value = res.data.balance
+        assets.value = res.data.assets
+        loaded.value = true
+    }
+
+    const reset = () => {
+        user.value = null
+        balance.value = 0
+        assets.value = []
+        loaded.value = false
+    }
+
+
+
+
+    // returning all variables
+    return {
+
+        //methods
+        fetchProfile,
+        reset,
+
+        //variables
+        user,
+        balance,
+        assets,
+        loaded
+
+    }
+
+})
