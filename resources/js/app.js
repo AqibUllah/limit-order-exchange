@@ -19,14 +19,19 @@ app.mount('#app')
 
 app.directive('click-outside', {
     beforeMount(el, binding) {
-        el.clickOutsideEvent = (event) => {
+        el._clickOutside = (event) => {
+            // Check if click is outside the element and not on the element itself
             if (!(el === event.target || el.contains(event.target))) {
-                binding.value(event);
+                // Use binding.value() — call the function passed (e.g., close dropdown)
+                binding.value(event)
             }
-        };
-        document.addEventListener('click', el.clickOutsideEvent);
+        }
+
+        // Use capture: false (default), but delay attachment to avoid immediate trigger
+        document.addEventListener('click', el._clickOutside)
     },
     unmounted(el) {
-        document.removeEventListener('click', el.clickOutsideEvent);
-    },
-});
+        document.removeEventListener('click', el._clickOutside)
+        delete el._clickOutside
+    }
+})
