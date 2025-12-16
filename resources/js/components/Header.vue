@@ -8,9 +8,9 @@
                 </div>
 
                 <!-- Right: User Dropdown -->
-                <div class="relative">
+                <div class="relative" v-click-outside="closeDropdown">
                     <button
-                        @click="isOpen = !isOpen"
+                        @click.stop="isOpen = !isOpen"
                         class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none"
                     >
                         <span class="mr-2">{{ userName }}</span>
@@ -29,7 +29,6 @@
                         <div
                             v-if="isOpen"
                             class="absolute right-0 mt-2 w-48 origin-top-right rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
-                            @click.outside="isOpen = false"
                         >
                             <div class="py-1">
                                 <div class="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
@@ -64,4 +63,8 @@ const authStore = useAuthStore()
 const handleLogout = () => {
     authStore.logout()
 };
+
+const closeDropdown = () => {
+    isOpen.value = false
+}
 </script>
