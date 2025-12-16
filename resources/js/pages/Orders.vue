@@ -31,10 +31,3 @@ const userStore = useUserStore()
         </div>
     </div>
 </template>
-
-<style scoped>
-.card{
-    background: #2c5ba0;
-    color: #fff;
-}
-</style>
