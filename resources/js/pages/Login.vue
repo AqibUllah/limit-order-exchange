@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { useUserStore } from '@/stores/user.js'
-import { useAuthStore } from "@/stores/auth";
+import { useUserStore } from '../stores/user.js'
+import { useAuthStore } from "../stores/auth";
 
 const email = ref('')
 const password = ref('')
