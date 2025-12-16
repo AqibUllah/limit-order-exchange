@@ -12,5 +12,5 @@ Route::post('/register', [\App\Http\Controllers\AuthController::class,'register'
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [\App\Http\Controllers\AuthController::class,'logout'])->name('logout');
-    Route::post('/profile', [\App\Http\Controllers\AuthController::class,'profile'])->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\AuthController::class,'profile'])->name('profile');
 });
