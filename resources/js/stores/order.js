@@ -7,15 +7,33 @@ export const useOrderStore = defineStore('order', () => {
     // defining store variables
     const orders = ref([])
     const loading =  ref(false)
-
+    const symbol = ref('BTC')
 
     // implementations
+     const fetchOrders = async(symbol_param = null) => {
+        loading.value = true
+
+        try {
+            if (symbol_param) {
+                symbol.value = symbol_param
+            }
+
+            const res = await axios.get('/api/orders', {
+                params: { symbol_param: symbol.value }
+            })
+
+            orders.value = res.data
+        } finally {
+            loading.value = false
+        }
+    }
     const placeOrder = async (payload) => {
         loading.value = true
         try {
 
-        await axios.post('/api/orders',payload)
-
+            await axios.post('/api/orders',payload)
+            //refreshing orders
+            await fetchOrders(payload.symbol)
         } finally {
             loading.value = false
         }
@@ -23,7 +41,13 @@ export const useOrderStore = defineStore('order', () => {
     }
 
     const cancelOrder = async (id) => {
-        await axios.post(`/api/orders/${id}/cancel`)
+        loading.value = true
+        try {
+            await axios.post(`/api/orders/${id}/cancel`)
+            await fetchOrders()
+        } finally {
+            loading.value = false
+        }
     }
 
     const reset = () => {
@@ -38,6 +62,7 @@ export const useOrderStore = defineStore('order', () => {
     return {
 
         //methods
+        fetchOrders,
         placeOrder,
         cancelOrder,
         reset,
