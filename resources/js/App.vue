@@ -1,12 +1,4 @@
-<script setup>
-
-</script>
-
 <template>
-    <Toaster position="top-right" richColors />
+    <Toaster position="bottom-right" richColors />
     <router-view></router-view>
 </template>
-
-<style scoped>
-
-</style>
