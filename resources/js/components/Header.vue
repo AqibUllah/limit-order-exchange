@@ -4,7 +4,7 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Left: Brand -->
                 <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-gray-900">MyApp</h1>
+                    <h1 class="text-2xl font-bold text-gray-900">Limit Order Exchange</h1>
                 </div>
 
                 <!-- Right: User Dropdown -->
