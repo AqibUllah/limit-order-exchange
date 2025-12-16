@@ -18,6 +18,7 @@ export const useUserStore = defineStore('user', () => {
         user.value = {
             id: res.data.id,
             email: res.data.email,
+            name: res.data.name,
         }
 
         balance.value = res.data.balance
