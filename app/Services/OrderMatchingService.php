@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Models\Asset;
 use Illuminate\Support\Facades\DB;
+use App\Events\OrderMatchedEvent;
 
 class OrderMatchingService
 {
@@ -14,7 +15,7 @@ class OrderMatchingService
     {
         DB::transaction(function () use ($order) {
 
-            if (SideEnum::tryFrom($order->side) === SideEnum::BUY) {
+            if ($order->side === SideEnum::BUY) {
                 $counter = Order::where('symbol', $order->symbol)
                     ->where('side', SideEnum::SELL)
                     ->where('status', Order::STATUS_OPEN)
@@ -87,6 +88,22 @@ class OrderMatchingService
         // Mark orders filled
         $buyOrder->status  = Order::STATUS_FILLED;
         $sellOrder->status = Order::STATUS_FILLED;
+
+
+        // passing events
+        event(new OrderMatchedEvent($buyer->id, [
+            'type' => 'buy',
+            'symbol' => $buyOrder->symbol,
+            'amount' => $amount,
+            'price' => $price,
+        ]));
+
+        event(new OrderMatchedEvent($seller->id, [
+            'type' => 'sell',
+            'symbol' => $sellOrder->symbol,
+            'amount' => $amount,
+            'price' => $price,
+        ]));
 
         $buyOrder->save();
         $sellOrder->save();
