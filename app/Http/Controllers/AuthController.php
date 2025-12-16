@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
+use App\Models\Asset;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,10 @@ class AuthController extends Controller
             ]);
 
             if ($user) {
+
+                // handle balances
+                $this->handleBalances($user);
+
                 if (! Auth::attempt($request->only('email', 'password'))) {
                     return response()->json([
                         'msg' => 'Invalid credentials',
@@ -63,17 +68,19 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        $request->user()->currentAccessToken()->delete();
+
         return response()->json([
             'msg' => 'Logged out',
         ]);
     }
 
-    public function profile()
+    public function profile(Request $request)
     {
         $user = Auth::user();
-
         return response()->json([
             'id' => $user->id,
+            'name' => $user->name,
             'email' => $user->email,
             'balance' => $user->balance,
             'assets' => $user->assets,
@@ -85,6 +92,28 @@ class AuthController extends Controller
         return response()->json([
             'user' => Auth::user(),
             'token' => Auth::user()->createToken($request->email)->plainTextToken,
+        ]);
+    }
+
+    public function handleBalances(User $user)
+    {
+        $user->balance = 50000;
+        $user->save();
+
+        Asset::firstOrCreate([
+            'user_id' => $user->id,
+            'symbol' => 'BTC',
+        ], [
+            'amount' => 1,
+            'locked_amount' => 0,
+        ]);
+
+        Asset::firstOrCreate([
+            'user_id' => $user->id,
+            'symbol' => 'ETH',
+        ], [
+            'amount' => 10,
+            'locked_amount' => 0,
         ]);
     }
 }
